@@ -7,12 +7,12 @@ import { Brand } from './brand.model';
 const createBrandIntoDB = async (brand: IBrand) => {
   console.log(brand);
 
-  // const isRecipeExists = await Brand.findOne({ name: recipe.title })
-  // if (isRecipeExists) {
-  //     throw new AppError(httpStatus.CONFLICT, 'This recipe is already exists!');
-  // }
-  // const result = await Brand.create(brand)
-  // return result
+  const isBrandExists = await Brand.findOne({ name: brand.brand_name })
+  if (isBrandExists) {
+    throw new ApiError(StatusCodes.CONFLICT, 'This brand is already exists!');
+  }
+  const result = await Brand.create(brand)
+  return result
 };
 
 
