@@ -6,15 +6,12 @@ import config from './config';
 import seedAdmin from './DB';
 import { socketHelper } from './helpers/socketHelper';
 import { errorLogger, logger } from './shared/logger';
-import Groq from "groq-sdk";
 
 //uncaught exception
 process.on('uncaughtException', error => {
   errorLogger.error('UnhandleException Detected', error);
   process.exit(1);
 });
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 let server: any;
 
