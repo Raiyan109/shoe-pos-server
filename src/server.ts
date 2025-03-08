@@ -18,24 +18,8 @@ const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 let server: any;
 
-export async function getGroqChatCompletion() {
-  return groq.chat.completions.create({
-    messages: [
-      {
-        role: "user",
-        content: "Suggest a beginner-level workout for a user who prefers cardio.",
-      },
-    ],
-    model: "llama-3.3-70b-versatile",
-  });
-}
-
 async function main() {
   try {
-    const chatCompletion = await getGroqChatCompletion();
-    // Print the completion returned by the LLM.
-    // console.log(chatCompletion.choices[0]?.message?.content || "");
-
     seedAdmin();
     mongoose.connect(config.database_url as string);
     logger.info(colors.green('🚀 Database connected successfully'));
