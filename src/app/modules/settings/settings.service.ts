@@ -21,6 +21,8 @@ const getSettingsFromDB = async () => {
 };
 
 const updateSettingsIntoDB = async (payload: Partial<ISettings>) => {
+  console.log(payload, 'payload from updatesettings service');
+
   const updatedSettings = await SettingsModel.findOneAndUpdate({}, payload, {
     new: true,
     runValidators: true,

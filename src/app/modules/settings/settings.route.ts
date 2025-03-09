@@ -5,8 +5,8 @@ import validateRequest from '../../middlewares/validateRequest';
 import { createSettingsSchema, updateSettingsSchema } from './settings.validation';
 const router = express.Router();
 
-router.patch('/', validateRequest(updateSettingsSchema), SettingsController.updateSettings)
 router.post('/create', fileUploadHandler(), validateRequest(createSettingsSchema), SettingsController.createSettings);
 router.get('/', SettingsController.getSettings);
+router.patch('/', fileUploadHandler(), SettingsController.updateSettings)
 
 export const SettingsRoutes = router;
