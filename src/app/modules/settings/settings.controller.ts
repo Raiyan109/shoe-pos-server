@@ -7,9 +7,6 @@ import { SettingsService } from './settings.service';
 
 
 const createSettings = catchAsync(async (req: Request, res: Response) => {
-  console.log(req.body); // Contains the form fields like 'title'
-  console.log(req.files); // Contains the uploaded files: 'favicon' and 'logo'
-
   // Check if the 'data' field is a stringified JSON object
   let title = '';
   if (req.body.data) {
@@ -29,9 +26,6 @@ const createSettings = catchAsync(async (req: Request, res: Response) => {
     favicon,
     logo,
   };
-
-  console.log(settingsData);
-
 
   const result = await SettingsService.createSettingsIntoDB(settingsData);
   sendResponse(res, {

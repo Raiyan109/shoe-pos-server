@@ -19,15 +19,18 @@ const BrandSchema = new mongoose.Schema<IBrand>(
       type: Number,
       default: 0
     },
-    status: {
-      type: Boolean,
-      // required: true,
+    brand_status: {
+      type: String,
+      enum: ['Active', 'InActive'], // Explicitly defining enum values
+      default: 'Active', // Default should be a valid enum value
+      required: true,
+
     },
-    image: {
+    brand_image: {
       type: String,
       // required: true,
     },
-    imageKey: {
+    brand_image_key: {
       type: String,
       // required: true,
     },
