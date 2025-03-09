@@ -19,15 +19,16 @@ const BrandSchema = new mongoose.Schema<IBrand>(
       type: Number,
       default: 0
     },
-    status: {
+    brand_status: {
       type: Boolean,
+      default: true
       // required: true,
     },
-    image: {
+    brand_image: {
       type: String,
       // required: true,
     },
-    imageKey: {
+    brand_image_key: {
       type: String,
       // required: true,
     },

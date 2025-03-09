@@ -5,9 +5,9 @@ export type IBrand = {
   created_by: string;
   updated_by: string;
   sequence: number;
-  status: boolean;
-  image: string;
-  imageKey: string;
+  brand_status: boolean;
+  brand_image: string;
+  brand_image_key: string;
   // created_by: Types.ObjectId;
   // updated_by: Types.ObjectId;
 };
