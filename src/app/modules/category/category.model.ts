@@ -34,4 +34,12 @@ const CategorySchema = new mongoose.Schema<ICategory>(
   }
 );
 
+
+CategorySchema.pre('save', async function (next) {
+  if (!this.isModified('position')) {
+    return next();
+  }
+  next();
+});
+
 export const CategoryModel = mongoose.model<ICategory>('Category', CategorySchema);
