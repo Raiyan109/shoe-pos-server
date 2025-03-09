@@ -12,8 +12,21 @@ const createBrandIntoDB = async (brand: IBrand) => {
     throw new ApiError(StatusCodes.CONFLICT, 'This brand is already exists!');
   }
 
-  const result = await BrandModel.create(brand)
-  return result
+  const newSequence = brand.sequence;
+
+  // Step 2: Shift the sequence of brands if the new sequence is not the last one
+  const brandsToShift = await BrandModel.find({ sequence: { $gte: newSequence } }).sort({ sequence: 1 });
+
+  // If there's any brand with a sequence greater than or equal to the new sequence, increment their sequence
+  if (brandsToShift.length > 0) {
+    for (const brandToShift of brandsToShift) {
+      await BrandModel.findByIdAndUpdate(brandToShift._id, { $inc: { sequence: 1 } });
+    }
+  }
+
+  // Step 3: Create the new brand with the desired sequence
+  const result = await BrandModel.create(brand);
+  return result;
 };
 
 const getAllBrandsFromDB = async (queryParams: Record<string, unknown>) => {

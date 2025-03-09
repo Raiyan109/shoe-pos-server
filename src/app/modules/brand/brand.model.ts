@@ -18,7 +18,19 @@ const BrandSchema = new mongoose.Schema<IBrand>(
     sequence: {
       type: Number,
       default: 0
-    }
+    },
+    status: {
+      type: Boolean,
+      // required: true,
+    },
+    image: {
+      type: String,
+      // required: true,
+    },
+    imageKey: {
+      type: String,
+      // required: true,
+    },
     // created_by: {
     //   type: mongoose.Schema.Types.ObjectId,
     //   ref: 'User',

@@ -5,6 +5,9 @@ export const BrandSchema = z.object({
   created_by: z.string(),
   updated_by: z.string(),
   sequence: z.number().optional(),
+  status: z.boolean(),
+  image: z.string(),
+  imageKey: z.string(),
 });
 
 export const BrandValidation = {
