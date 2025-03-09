@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { BrandRoutes } from '../app/modules/brand/brand.route';
+import { categoryRoutes } from '../app/modules/category/category.route';
 
 
 const router = express.Router();
@@ -13,6 +14,7 @@ const apiRoutes = [
   // { path: '/conversation', route: ConversationRoutes },
   // { path: '/subscription', route: SubscriptionRoutes },
   { path: '/brand', route: BrandRoutes },
+  { path: '/category', route: categoryRoutes },
 ];
 
 apiRoutes.forEach(route => router.use(route.path, route.route));
