@@ -30,9 +30,33 @@ const getAllBrandsFromDB = async (queryParams: Record<string, unknown>) => {
   return result;
 };
 
+const updateBrandSequenceInDB = async (brandId: string, newSequence: number) => {
+  const targetBrand = await BrandModel.findById(brandId);
+  if (!targetBrand) {
+    throw new Error('Brand not found');
+  }
+
+  const oldSequence = targetBrand.sequence;
+
+  // Check if another brand already has the new sequence
+  const existingBrand = await BrandModel.findOne({ sequence: newSequence });
+
+  // If another brand has the same sequence, shift it
+  if (existingBrand) {
+    await BrandModel.findByIdAndUpdate(existingBrand._id, { sequence: oldSequence });
+  }
+
+  // Now update the target brand's sequence
+  targetBrand.sequence = newSequence;
+  await targetBrand.save();
+
+  return targetBrand;
+};
+
 
 
 export const BrandService = {
   createBrandIntoDB,
-  getAllBrandsFromDB
+  getAllBrandsFromDB,
+  updateBrandSequenceInDB
 };
