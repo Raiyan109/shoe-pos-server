@@ -6,7 +6,6 @@ import config from './config';
 import seedAdmin from './DB';
 import { socketHelper } from './helpers/socketHelper';
 import { errorLogger, logger } from './shared/logger';
-import Groq from "groq-sdk";
 
 //uncaught exception
 process.on('uncaughtException', error => {
@@ -14,28 +13,10 @@ process.on('uncaughtException', error => {
   process.exit(1);
 });
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-
 let server: any;
-
-export async function getGroqChatCompletion() {
-  return groq.chat.completions.create({
-    messages: [
-      {
-        role: "user",
-        content: "Suggest a beginner-level workout for a user who prefers cardio.",
-      },
-    ],
-    model: "llama-3.3-70b-versatile",
-  });
-}
 
 async function main() {
   try {
-    const chatCompletion = await getGroqChatCompletion();
-    // Print the completion returned by the LLM.
-    // console.log(chatCompletion.choices[0]?.message?.content || "");
-
     seedAdmin();
     mongoose.connect(config.database_url as string);
     logger.info(colors.green('🚀 Database connected successfully'));
@@ -43,7 +24,7 @@ async function main() {
     const port =
       typeof config.port === 'number' ? config.port : Number(config.port);
 
-    server = app.listen(port, config.ip_address as string, () => {
+    server = app.listen(port, () => {
       logger.info(
         colors.yellow(`♻️  Application listening on port:${config.port}`)
       );
