@@ -64,7 +64,20 @@ const getSettings = catchAsync(async (req, res) => {
   });
 });
 
+const updateSettings = catchAsync(async (req, res) => {
+  const result = await SettingsService.updateSettingsIntoDB(req.body);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: 'Settings updated successfully',
+    data: result,
+  });
+});
+
+
 export const SettingsController = {
   createSettings,
-  getSettings
+  getSettings,
+  updateSettings
 };

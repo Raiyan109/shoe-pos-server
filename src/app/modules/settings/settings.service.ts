@@ -6,8 +6,6 @@ import { SettingsModel } from './settings.model';
 
 
 const createSettingsIntoDB = async (settings: ISettings) => {
-  console.log(settings);
-
   const isSettingsExists = await SettingsModel.findOne({ name: settings.title })
   if (isSettingsExists) {
     throw new ApiError(StatusCodes.CONFLICT, 'This settings is already exists!');
@@ -22,8 +20,23 @@ const getSettingsFromDB = async () => {
   return result;
 };
 
+const updateSettingsIntoDB = async (payload: Partial<ISettings>) => {
+  const updatedSettings = await SettingsModel.findOneAndUpdate({}, payload, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!updatedSettings) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Failed to update settings');
+  }
+
+  return updatedSettings;
+};
+
+
 
 export const SettingsService = {
   createSettingsIntoDB,
-  getSettingsFromDB
+  getSettingsFromDB,
+  updateSettingsIntoDB
 };
