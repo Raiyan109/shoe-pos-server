@@ -58,8 +58,29 @@ const getSettings = catchAsync(async (req, res) => {
   });
 });
 
-const updateSettings = catchAsync(async (req, res) => {
-  const result = await SettingsService.updateSettingsIntoDB(req.body);
+const updateSettings = catchAsync(async (req: Request, res: Response) => {
+  let title = '';
+  if (req.body.data) {
+    const parsedData = JSON.parse(req.body.data);
+    title = parsedData.title;
+  } else {
+    title = req.body.title;
+  }
+
+  // Ensure TypeScript understands req.files is an object
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+  const favicon = files?.['favicon']?.[0]?.path;
+  const logo = files?.['logo']?.[0]?.path;
+
+  // Prepare update data
+  const updatedSettingsData: any = { title };
+  if (favicon) updatedSettingsData.favicon = favicon;
+  if (logo) updatedSettingsData.logo = logo;
+  console.log(updatedSettingsData);
+
+  // Update settings in the database
+  const result = await SettingsService.updateSettingsIntoDB(updatedSettingsData);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
@@ -68,6 +89,7 @@ const updateSettings = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 
 
 export const SettingsController = {

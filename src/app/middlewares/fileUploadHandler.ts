@@ -1,9 +1,17 @@
 import { Request } from 'express';
+import { v2 as cloudinary } from 'cloudinary'
 import fs from 'fs';
 import { StatusCodes } from 'http-status-codes';
 import multer, { FileFilterCallback } from 'multer';
 import path from 'path';
 import ApiError from '../../errors/ApiError';
+import config from '../../config';
+
+cloudinary.config({
+  cloud_name: config.cloudinary_cloud_name,
+  api_key: config.cloudinary_api_key,
+  api_secret: config.cloudinary_api_secret,
+});
 
 const fileUploadHandler = () => {
   //create upload folder
