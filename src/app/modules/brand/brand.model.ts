@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import { IBrand } from './brand.interface';
 
 
-const BrandModel = new mongoose.Schema<IBrand>(
+const BrandSchema = new mongoose.Schema<IBrand>(
   {
     brand_name: {
       type: String,
@@ -31,4 +31,4 @@ const BrandModel = new mongoose.Schema<IBrand>(
   }
 );
 
-export const Brand = mongoose.model<IBrand>('Brand', BrandModel);
+export const BrandModel = mongoose.model<IBrand>('Brand', BrandSchema);
