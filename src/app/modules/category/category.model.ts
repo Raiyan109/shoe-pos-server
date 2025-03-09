@@ -7,6 +7,9 @@ const CategorySchema = new mongoose.Schema<ICategory>(
     category_name: {
       type: String,
     },
+    position: {
+      type: Number,
+    },
     created_by: {
       type: String,
       required: true,
