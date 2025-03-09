@@ -15,8 +15,10 @@ const createBrand = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+
 const getAllBrands = catchAsync(async (req, res) => {
-  const result = await BrandService.getAllBrandsFromDB();
+  const query = req.query
+  const result = await BrandService.getAllBrandsFromDB(query);
 
   // Check if the database collection is empty or no matching data is found
   if (!result || result.length === 0) {
