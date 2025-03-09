@@ -33,6 +33,12 @@ const fileUploadHandler = () => {
         case 'doc':
           uploadDir = path.join(baseUploadDir, 'docs');
           break;
+        case 'favicon':
+          uploadDir = path.join(baseUploadDir, 'images');
+          break;
+        case 'logo':
+          uploadDir = path.join(baseUploadDir, 'images');
+          break;
         default:
           throw new ApiError(StatusCodes.BAD_REQUEST, 'File is not supported');
       }
@@ -87,7 +93,38 @@ const fileUploadHandler = () => {
       } else {
         cb(new ApiError(StatusCodes.BAD_REQUEST, 'Only pdf supported'));
       }
-    } else {
+    } else if (file.fieldname === 'favicon') {
+      if (
+        file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'image/jpg'
+      ) {
+        cb(null, true);
+      } else {
+        cb(
+          new ApiError(
+            StatusCodes.BAD_REQUEST,
+            'Only .jpeg, .png, .jpg file supported'
+          )
+        );
+      }
+    } else if (file.fieldname === 'logo') {
+      if (
+        file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'image/jpg'
+      ) {
+        cb(null, true);
+      } else {
+        cb(
+          new ApiError(
+            StatusCodes.BAD_REQUEST,
+            'Only .jpeg, .png, .jpg file supported'
+          )
+        );
+      }
+    }
+    else {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'This file is not supported');
     }
   };
@@ -99,6 +136,8 @@ const fileUploadHandler = () => {
     { name: 'image', maxCount: 3 },
     { name: 'media', maxCount: 3 },
     { name: 'doc', maxCount: 3 },
+    { name: 'favicon', maxCount: 3 },
+    { name: 'logo', maxCount: 3 },
   ]);
   return upload;
 };
