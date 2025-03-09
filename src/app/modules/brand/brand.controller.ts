@@ -10,7 +10,7 @@ const createBrand = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     success: true,
     statusCode: StatusCodes.OK,
-    message: 'Client retrived successfully',
+    message: 'Brand created successfully',
     data: result,
   });
 });
@@ -38,7 +38,31 @@ const getAllBrands = catchAsync(async (req, res) => {
   });
 });
 
+const updateBrandSequence = catchAsync(async (req, res) => {
+  const { brandId } = req.params;
+  const { sequence } = req.body;
+
+  if (sequence === undefined || isNaN(sequence)) {
+    return sendResponse(res, {
+      success: false,
+      statusCode: StatusCodes.BAD_REQUEST,
+      message: 'Invalid sequence value',
+    });
+  }
+
+  const updatedBrand = await BrandService.updateBrandSequenceInDB(brandId, Number(sequence));
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: 'Brand sequence updated successfully',
+    data: updatedBrand,
+  });
+});
+
+
 export const BrandController = {
   createBrand,
-  getAllBrands
+  getAllBrands,
+  updateBrandSequence
 };
