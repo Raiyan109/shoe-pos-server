@@ -15,6 +15,25 @@ const BrandSchema = new mongoose.Schema<IBrand>(
       type: String,
       required: true,
     },
+    sequence: {
+      type: Number,
+      default: 0
+    },
+    brand_status: {
+      type: String,
+      enum: ['Active', 'InActive'], // Explicitly defining enum values
+      default: 'Active', // Default should be a valid enum value
+      required: true,
+
+    },
+    brand_image: {
+      type: String,
+      // required: true,
+    },
+    brand_image_key: {
+      type: String,
+      // required: true,
+    },
     // created_by: {
     //   type: mongoose.Schema.Types.ObjectId,
     //   ref: 'User',

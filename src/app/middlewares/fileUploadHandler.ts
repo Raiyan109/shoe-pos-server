@@ -1,9 +1,17 @@
 import { Request } from 'express';
+import { v2 as cloudinary } from 'cloudinary'
 import fs from 'fs';
 import { StatusCodes } from 'http-status-codes';
 import multer, { FileFilterCallback } from 'multer';
 import path from 'path';
 import ApiError from '../../errors/ApiError';
+import config from '../../config';
+
+cloudinary.config({
+  cloud_name: config.cloudinary_cloud_name,
+  api_key: config.cloudinary_api_key,
+  api_secret: config.cloudinary_api_secret,
+});
 
 const fileUploadHandler = () => {
   //create upload folder
@@ -32,6 +40,12 @@ const fileUploadHandler = () => {
           break;
         case 'doc':
           uploadDir = path.join(baseUploadDir, 'docs');
+          break;
+        case 'favicon':
+          uploadDir = path.join(baseUploadDir, 'images');
+          break;
+        case 'logo':
+          uploadDir = path.join(baseUploadDir, 'images');
           break;
         default:
           throw new ApiError(StatusCodes.BAD_REQUEST, 'File is not supported');
@@ -87,7 +101,38 @@ const fileUploadHandler = () => {
       } else {
         cb(new ApiError(StatusCodes.BAD_REQUEST, 'Only pdf supported'));
       }
-    } else {
+    } else if (file.fieldname === 'favicon') {
+      if (
+        file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'image/jpg'
+      ) {
+        cb(null, true);
+      } else {
+        cb(
+          new ApiError(
+            StatusCodes.BAD_REQUEST,
+            'Only .jpeg, .png, .jpg file supported'
+          )
+        );
+      }
+    } else if (file.fieldname === 'logo') {
+      if (
+        file.mimetype === 'image/jpeg' ||
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'image/jpg'
+      ) {
+        cb(null, true);
+      } else {
+        cb(
+          new ApiError(
+            StatusCodes.BAD_REQUEST,
+            'Only .jpeg, .png, .jpg file supported'
+          )
+        );
+      }
+    }
+    else {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'This file is not supported');
     }
   };
@@ -99,6 +144,8 @@ const fileUploadHandler = () => {
     { name: 'image', maxCount: 3 },
     { name: 'media', maxCount: 3 },
     { name: 'doc', maxCount: 3 },
+    { name: 'favicon', maxCount: 3 },
+    { name: 'logo', maxCount: 3 },
   ]);
   return upload;
 };
