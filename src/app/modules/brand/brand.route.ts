@@ -6,5 +6,6 @@ const router = express.Router();
 
 
 router.post('/create', BrandController.createBrand);
+router.get('/', BrandController.getAllBrands);
 
 export const BrandRoutes = router;
