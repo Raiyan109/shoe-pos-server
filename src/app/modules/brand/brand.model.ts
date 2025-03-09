@@ -15,6 +15,10 @@ const BrandSchema = new mongoose.Schema<IBrand>(
       type: String,
       required: true,
     },
+    sequence: {
+      type: Number,
+      default: 0
+    }
     // created_by: {
     //   type: mongoose.Schema.Types.ObjectId,
     //   ref: 'User',

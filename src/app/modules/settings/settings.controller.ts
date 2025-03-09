@@ -7,11 +7,13 @@ import { SettingsService } from './settings.service';
 
 
 const createSettings = catchAsync(async (req: Request, res: Response) => {
+  console.log(req.file);
+
   const result = await SettingsService.createSettingsIntoDB(req.body);
   sendResponse(res, {
     success: true,
     statusCode: StatusCodes.OK,
-    message: 'Settings retrived successfully',
+    message: 'Settings created successfully',
     data: result,
   });
 });

@@ -7,12 +7,11 @@ import QueryBuilder from '../../builder/QueryBuilder';
 
 
 const createBrandIntoDB = async (brand: IBrand) => {
-  console.log(brand);
-
   const isBrandExists = await BrandModel.findOne({ name: brand.brand_name })
   if (isBrandExists) {
     throw new ApiError(StatusCodes.CONFLICT, 'This brand is already exists!');
   }
+
   const result = await BrandModel.create(brand)
   return result
 };
@@ -27,7 +26,7 @@ const getAllBrandsFromDB = async (queryParams: Record<string, unknown>) => {
   // .paginate()
   // .fields();
 
-  const result = await query.modelQuery; // Execute the query
+  const result = await query.modelQuery.sort({ sequence: 1 }); // Execute the query
   return result;
 };
 

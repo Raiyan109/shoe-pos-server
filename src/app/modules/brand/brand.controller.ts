@@ -10,7 +10,7 @@ const createBrand = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     success: true,
     statusCode: StatusCodes.OK,
-    message: 'Client retrived successfully',
+    message: 'Brand created successfully',
     data: result,
   });
 });

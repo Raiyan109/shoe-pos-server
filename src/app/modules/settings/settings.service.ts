@@ -6,12 +6,14 @@ import { SettingsModel } from './settings.model';
 
 
 const createSettingsIntoDB = async (settings: ISettings) => {
-  const isSettingsExists = await SettingsModel.findOne({ name: settings.title })
-  if (isSettingsExists) {
-    throw new ApiError(StatusCodes.CONFLICT, 'This settings is already exists!');
-  }
-  const result = await SettingsModel.create(settings)
-  return result
+  console.log(settings);
+
+  // const isSettingsExists = await SettingsModel.findOne({ name: settings.title })
+  // if (isSettingsExists) {
+  //   throw new ApiError(StatusCodes.CONFLICT, 'This settings is already exists!');
+  // }
+  // const result = await SettingsModel.create(settings)
+  // return result
 };
 
 
