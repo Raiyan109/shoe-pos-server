@@ -7,9 +7,33 @@ import { SettingsService } from './settings.service';
 
 
 const createSettings = catchAsync(async (req: Request, res: Response) => {
-  console.log(req.file);
+  console.log(req.body); // Contains the form fields like 'title'
+  console.log(req.files); // Contains the uploaded files: 'favicon' and 'logo'
 
-  const result = await SettingsService.createSettingsIntoDB(req.body);
+  // Check if the 'data' field is a stringified JSON object
+  let title = '';
+  if (req.body.data) {
+    const parsedData = JSON.parse(req.body.data); // Parse the 'data' field
+    title = parsedData.title;  // Extract 'title' from the parsed object
+  } else {
+    title = req.body.title; // Alternatively, if title is directly sent
+  }
+  // Ensure TypeScript understands req.files is an object
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+
+  const favicon = files?.['favicon']?.[0]?.path;
+  const logo = files?.['logo']?.[0]?.path;
+
+  const settingsData = {
+    title,
+    favicon,
+    logo,
+  };
+
+  console.log(settingsData);
+
+
+  const result = await SettingsService.createSettingsIntoDB(settingsData);
   sendResponse(res, {
     success: true,
     statusCode: StatusCodes.OK,
