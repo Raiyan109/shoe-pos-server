@@ -2,9 +2,9 @@ import express from 'express';
 
 import { BrandRoutes } from '../app/modules/brand/brand.route';
 
-import { categoryRoutes } from '../app/modules/category/category.route';
-
 import { SettingsRoutes } from '../app/modules/settings/settings.route';
+import { CategoryRoutes } from '../app/modules/category/category.routes';
+import { AdminRegRoutes } from '../app/modules/adminRegLog/admin.routes';
 
 
 
@@ -19,9 +19,11 @@ const apiRoutes = [
   // { path: '/subscription', route: SubscriptionRoutes },
   { path: '/brand', route: BrandRoutes },
 
-  { path: '/category', route: categoryRoutes },
+  { path: '/category', route: CategoryRoutes },
 
   { path: '/settings', route: SettingsRoutes },
+
+  { path: '/admin', route: AdminRegRoutes },
 
 ];
 

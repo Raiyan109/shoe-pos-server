@@ -1,10 +1,20 @@
-//import { Types } from 'mongoose';
+import { Types } from "mongoose";
+import { IAdminInterface } from "../adminRegLog/admin.interface";
 
-export type ICategory = {
+export interface ICategoryInterface {
+  _id?: any;
   category_name: string;
-  position: number;
-  created_by: string;
-  updated_by: string;
-  // created_by: Types.ObjectId;
-  // updated_by: Types.ObjectId;
-};
+  category_slug: string;
+  category_logo: string;
+  category_logo_key: string;
+  category_status: "active" | "in-active";
+  category_serial: number;
+  category_publisher_id: Types.ObjectId | IAdminInterface;
+  category_updated_by?: Types.ObjectId | IAdminInterface;
+}
+
+export const categorySearchableField = [
+  "category_name",
+  "category_slug",
+  "category_status",
+];
