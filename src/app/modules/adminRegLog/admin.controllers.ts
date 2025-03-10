@@ -5,7 +5,7 @@ import { deleteAdminServices, findAdminInfoServices, findAllDashboardAdminRoleAd
 import { StatusCodes } from "http-status-codes";
 import ApiError from "../../../errors/ApiError";
 import sendResponse from "../../../shared/sendResponse";
-const bcrypt = require("bcryptjs");
+import bcryptjs from "bcryptjs";
 const saltRounds = 10;
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
