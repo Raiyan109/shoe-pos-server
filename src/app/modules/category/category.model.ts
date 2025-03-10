@@ -1,45 +1,51 @@
-import mongoose from 'mongoose';
-import { ICategory } from './category.interface';
+import { Schema, model } from "mongoose";
+import { ICategoryInterface } from "./category.interface";
 
-
-const CategorySchema = new mongoose.Schema<ICategory>(
+// Category Schema
+const categorySchema = new Schema<ICategoryInterface>(
   {
     category_name: {
+      required: true,
       type: String,
     },
-    position: {
+    category_slug: {
+      required: true,
+      type: String,
+      unique: true,
+    },
+    category_logo: {
+      required: true,
+      type: String,
+    },
+    category_logo_key: {
+      required: true,
+      type: String,
+    },
+    category_status: {
+      required: true,
+      type: String,
+      enum: ["active", "in-active"],
+      default: "active",
+    },
+    category_serial: {
+      required: true,
       type: Number,
     },
-    created_by: {
-      type: String,
+    category_publisher_id: {
+      type: Schema.Types.ObjectId,
+      ref: "admins",
       required: true,
     },
-    updated_by: {
-      type: String,
-      required: true,
+    category_updated_by: {
+      type: Schema.Types.ObjectId,
+      ref: "admins",
     },
-    // created_by: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: 'User',
-    //   required: true,
-    // },
-    // updated_by: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: 'User',
-    //   required: true,
-    // },
   },
   {
     timestamps: true,
   }
 );
 
+const CategoryModel = model<ICategoryInterface>("categories", categorySchema);
 
-CategorySchema.pre('save', async function (next) {
-  if (!this.isModified('position')) {
-    return next();
-  }
-  next();
-});
-
-export const CategoryModel = mongoose.model<ICategory>('Category', CategorySchema);
+export default CategoryModel;

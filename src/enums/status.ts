@@ -1,1 +1,1 @@
-export type IStatus = 'Active' | 'InActive'
+export type IStatus = 'Active' | 'Inactive'
