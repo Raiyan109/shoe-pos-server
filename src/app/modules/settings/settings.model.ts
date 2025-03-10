@@ -11,7 +11,15 @@ const SettingsSchema = new mongoose.Schema<ISettings>(
       type: String,
       required: true,
     },
+    favicon_key: {
+      type: String,
+      required: true,
+    },
     logo: {
+      type: String,
+      required: true,
+    },
+    logo_key: {
       type: String,
       required: true,
     },
@@ -21,4 +29,4 @@ const SettingsSchema = new mongoose.Schema<ISettings>(
   }
 );
 
-export const SettingsModel = mongoose.model<ISettings>('Settings', SettingsSchema);
+export const SettingsModel = mongoose.model<ISettings>('settings', SettingsSchema);
