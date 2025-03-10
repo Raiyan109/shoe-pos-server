@@ -31,15 +31,15 @@ const categorySchema = new Schema<ICategoryInterface>(
       required: true,
       type: Number,
     },
-    category_publisher_id: {
-      type: Schema.Types.ObjectId,
-      ref: "admins",
-      required: true,
-    },
-    category_updated_by: {
-      type: Schema.Types.ObjectId,
-      ref: "admins",
-    },
+    // category_publisher_id: {
+    //   type: Schema.Types.ObjectId,
+    //   ref: "admins",
+    //   required: true,
+    // },
+    // category_updated_by: {
+    //   type: Schema.Types.ObjectId,
+    //   ref: "admins",
+    // },
   },
   {
     timestamps: true,

@@ -16,6 +16,7 @@ import { StatusCodes } from "http-status-codes";
 import ApiError from "../../../errors/ApiError";
 import { FileUploadHelper } from "../../../helpers/helpers/image.upload";
 import sendResponse from "../../../shared/sendResponse";
+import slugify from "slugify";
 
 // Add A Category
 export const postCategory: RequestHandler = async (
@@ -26,8 +27,12 @@ export const postCategory: RequestHandler = async (
   try {
     if (req.files && "category_logo" in req.files && req.body) {
       const requestData = req.body;
-      const findCategoryNameExit: boolean | null | undefined | any = await CategoryModel.exists({ category_slug: requestData?.category_slug });
+      let category_slug = slugify(requestData?.category_name);
 
+      const findCategoryNameExit: boolean | null | undefined | any =
+        await CategoryModel.exists({
+          category_slug,
+        });
       if (findCategoryNameExit) {
         fs.unlinkSync(req.files.category_logo[0].path);
         throw new ApiError(400, "Already Added !");
@@ -54,8 +59,7 @@ export const postCategory: RequestHandler = async (
         category_logo = category_logo_upload?.Location;
         category_logo_key = category_logo_upload?.Key;
       }
-
-      const data = { ...requestData, category_logo, category_logo_key };
+      const data = { ...requestData, category_logo, category_logo_key, category_slug };
       const result: ICategoryInterface | {} = await postCategoryServices(data);
 
       if (result) {
@@ -142,9 +146,10 @@ export const updateCategory: RequestHandler = async (
   try {
     if (req.files && "category_logo" in req.files && req.body) {
       const requestData = req.body;
+      let category_slug = slugify(requestData?.category_name);
       const findCategoryNameExit: boolean | null | undefined | any =
         await CategoryModel.exists({
-          category_slug: requestData?.category_slug,
+          category_slug,
         });
       if (
         findCategoryNameExit &&
@@ -176,7 +181,7 @@ export const updateCategory: RequestHandler = async (
         category_logo = category_logo_upload?.Location;
         category_logo_key = category_logo_upload?.Key;
       }
-      const data = { ...requestData, category_logo, category_logo_key };
+      const data = { ...requestData, category_logo, category_logo_key, category_slug };
       const result: ICategoryInterface | any = await updateCategoryServices(
         data,
         requestData?._id
@@ -197,9 +202,10 @@ export const updateCategory: RequestHandler = async (
       }
     } else {
       const requestData = req.body;
+      let category_slug = slugify(requestData?.category_name);
       const findCategoryNameExit: boolean | null | undefined | any =
         await CategoryModel.exists({
-          category_slug: requestData?.category_slug,
+          category_slug,
         });
       if (
         findCategoryNameExit &&

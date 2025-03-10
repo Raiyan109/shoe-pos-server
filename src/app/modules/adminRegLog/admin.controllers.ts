@@ -6,8 +6,7 @@ import { deleteAdminServices, findAdminInfoServices, findAllDashboardAdminRoleAd
 import { StatusCodes } from "http-status-codes";
 import ApiError from "../../../errors/ApiError";
 import sendResponse from "../../../shared/sendResponse";
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
+import bcryptjs from "bcryptjs";
 const saltRounds = 10;
 
 // const { promisify } = require("util");

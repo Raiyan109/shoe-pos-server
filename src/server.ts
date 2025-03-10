@@ -4,6 +4,10 @@ import { Server } from 'socket.io';
 import app from './app';
 import config from './config';
 import seedAdmin from './DB';
+<<<<<<< HEAD
+=======
+//import { socketHelper } from './helpers/socketHelper';
+>>>>>>> b8ef2ab8614b1e59e02608984f6e773cfced2c62
 import { errorLogger, logger } from './shared/logger';
 
 //uncaught exception
@@ -38,6 +42,14 @@ async function main() {
     });
     //@ts-ignore
     global.io = io;
+<<<<<<< HEAD
+=======
+   // socketHelper.socket(io);
+
+    // (global as any).io = io;
+    // globalThis.io = io;
+
+>>>>>>> b8ef2ab8614b1e59e02608984f6e773cfced2c62
   } catch (error) {
     errorLogger.error(colors.red('🤢 Failed to connect Database'));
   }

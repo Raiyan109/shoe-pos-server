@@ -34,7 +34,7 @@ const BrandSchema = new mongoose.Schema<IBrand>(
     brand_publisher_id: {
       type: Schema.Types.ObjectId,
       ref: "admins",
-      required: true,
+      // required: true,
     },
     brand_updated_by: {
       type: Schema.Types.ObjectId,

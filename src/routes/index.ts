@@ -1,6 +1,6 @@
 import express from 'express';
 
-import { BrandRoutes } from '../app/modules/brand/brand.route';
+import { BrandRoutes } from '../app/modules/brand/brand.routes';
 
 import { SettingsRoutes } from '../app/modules/settings/settings.route';
 import { CategoryRoutes } from '../app/modules/category/category.routes';
