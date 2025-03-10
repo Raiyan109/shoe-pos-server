@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
-import { BrandService, BrandServices } from './brand.services';
+import { BrandServices } from './brand.services';
 import { StatusCodes } from 'http-status-codes';
 import { IStatus } from '../../../enums/status';
 import { IBrand } from './brand.interface';
 import { FileUploadHelper } from '../../../helpers/helpers/image.upload';
 import ApiError from '../../../errors/ApiError';
+import slugify from "slugify";
 
 
 const postBrand = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -53,6 +54,7 @@ const postBrand = catchAsync(async (req: Request, res: Response, next: NextFunct
   try {
     if (req.files && "brand_logo" in req.files && req.body) {
       const requestData = req.body;
+      let brand_slug = slugify(requestData?.brand_name);
 
       // get the category image and upload
       let brand_logo;
@@ -66,14 +68,15 @@ const postBrand = catchAsync(async (req: Request, res: Response, next: NextFunct
         brand_logo_key = brand_logo_upload?.Key;
       }
 
-      const data = { ...requestData, brand_logo, brand_logo_key };
-      const result: IBrand | {} = await BrandServices.postBrandServices(data);
+      const data = { ...requestData, brand_logo, brand_logo_key, brand_slug };
+      const result = await BrandServices.postBrandServices(data);
 
       if (result) {
         return sendResponse<IBrand>(res, {
-          statusCode: StatusCodes.OK,
           success: true,
+          statusCode: StatusCodes.OK,
           message: "Brand Added Successfully !",
+          data: result
         });
       } else {
         throw new ApiError(400, "Brand Added Failed !");
@@ -89,7 +92,7 @@ const postBrand = catchAsync(async (req: Request, res: Response, next: NextFunct
 
 const getAllBrands = catchAsync(async (req, res) => {
   const query = req.query
-  const result = await BrandService.getAllBrandsFromDB(query);
+  const result = await BrandServices.getAllBrandsFromDB(query);
 
   // Check if the database collection is empty or no matching data is found
   if (!result || result.length === 0) {
@@ -121,7 +124,7 @@ const updateBrandSequence = catchAsync(async (req, res) => {
     });
   }
 
-  const updatedBrand = await BrandService.updateBrandSequenceInDB(brandId, Number(sequence));
+  const updatedBrand = await BrandServices.updateBrandSequenceInDB(brandId, Number(sequence));
 
   sendResponse(res, {
     success: true,
