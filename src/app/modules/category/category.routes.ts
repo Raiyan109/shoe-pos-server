@@ -9,7 +9,7 @@ import {
 import { FileUploadHelper } from "../../../helpers/helpers/image.upload";
 const router = express.Router();
 
-// Create, Get category
+// Create, Update, Get category
 router
   .route("/")
   .get(findAllCategory)
