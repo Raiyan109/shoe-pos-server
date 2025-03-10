@@ -26,22 +26,23 @@ export const postCategory: RequestHandler = async (
   try {
     if (req.files && "category_logo" in req.files && req.body) {
       const requestData = req.body;
-      const findCategoryNameExit: boolean | null | undefined | any =
-        await CategoryModel.exists({
-          category_slug: requestData?.category_slug,
-        });
+      const findCategoryNameExit: boolean | null | undefined | any = await CategoryModel.exists({ category_slug: requestData?.category_slug });
+
       if (findCategoryNameExit) {
         fs.unlinkSync(req.files.category_logo[0].path);
         throw new ApiError(400, "Already Added !");
       }
+
       const findCategorySerialExit: boolean | null | undefined | any =
         await CategoryModel.exists({
           category_serial: requestData?.category_serial,
         });
+
       if (findCategorySerialExit) {
         fs.unlinkSync(req.files.category_logo[0].path);
         throw new ApiError(400, "Serial Number Previously Added !");
       }
+
       // get the category image and upload
       let category_logo;
       let category_logo_key;
@@ -53,8 +54,10 @@ export const postCategory: RequestHandler = async (
         category_logo = category_logo_upload?.Location;
         category_logo_key = category_logo_upload?.Key;
       }
+
       const data = { ...requestData, category_logo, category_logo_key };
       const result: ICategoryInterface | {} = await postCategoryServices(data);
+
       if (result) {
         return sendResponse<ICategoryInterface>(res, {
           statusCode: StatusCodes.OK,

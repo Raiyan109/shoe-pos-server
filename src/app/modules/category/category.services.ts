@@ -9,16 +9,12 @@ import CategoryModel from "./category.model";
 export const postCategoryServices = async (
   data: ICategoryInterface
 ): Promise<ICategoryInterface | {}> => {
-  const createCategory: ICategoryInterface | {} = await CategoryModel.create(
-    data
-  );
+  const createCategory: ICategoryInterface | {} = await CategoryModel.create(data);
   return createCategory;
 };
 
 // Find Category
-export const findAllCategoryServices = async (): Promise<
-  ICategoryInterface[] | []
-> => {
+export const findAllCategoryServices = async (): Promise<ICategoryInterface[] | []> => {
   const findCategory: ICategoryInterface[] | [] = await CategoryModel.find({
     category_status: "active",
   })

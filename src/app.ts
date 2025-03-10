@@ -4,6 +4,7 @@ import { StatusCodes } from 'http-status-codes';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
 import router from './routes';
 import { Morgan } from './shared/morgen';
+import cookieParser from 'cookie-parser'
 import cron from 'node-cron';
 
 import { logger } from './shared/logger';
@@ -34,6 +35,8 @@ app.use(express.urlencoded({ extended: true }));
 
 //file retrieve
 app.use(express.static('uploads'));
+
+app.use(cookieParser());
 
 //router
 app.use('/api/v1', router);

@@ -74,11 +74,12 @@ import { FileUploadHelper } from '../../middlewares/FileUploadHelper';
 // });
 
 const createSettings = catchAsync(async (req: Request, res: Response) => {
-  console.log("Incoming request body:", req.body);
-  console.log("Incoming files:", req.files);
-
   if (!req.files || !("logo" in req.files) || !("favicon" in req.files)) {
-    return res.status(400).json({ message: "Logo and favicon are required" });
+    return sendResponse(res, {
+      success: false,
+      statusCode: StatusCodes.BAD_REQUEST,
+      message: 'Logo and favicon are required',
+    });
   }
 
   let title = '';
@@ -95,18 +96,14 @@ const createSettings = catchAsync(async (req: Request, res: Response) => {
     const logoImage = req.files["logo"][0];
     const faviconImage = req.files["favicon"][0];
 
-    console.log("Uploading logo...");
     const logoUpload = await FileUploadHelper.uploadToSpaces(logoImage);
-    console.log("Logo uploaded:", logoUpload);
 
     if (logoUpload) {
       logo = logoUpload?.Location;
       logo_key = logoUpload?.Key;
     }
 
-    console.log("Uploading favicon...");
     const faviconUpload = await FileUploadHelper.uploadToSpaces(faviconImage);
-    console.log("Favicon uploaded:", faviconUpload);
 
     if (faviconUpload) {
       favicon = faviconUpload.Location;
@@ -115,7 +112,6 @@ const createSettings = catchAsync(async (req: Request, res: Response) => {
 
     const settingsData = { title, favicon, favicon_key, logo, logo_key };
 
-    console.log("Saving to DB:", settingsData);
     const result = await SettingsService.createSettingsIntoDB(settingsData);
 
     return sendResponse(res, {
@@ -153,7 +149,10 @@ const getSettings = catchAsync(async (req, res) => {
 });
 
 const updateSettings = catchAsync(async (req: Request, res: Response) => {
-  let title = '';
+  console.log("Incoming request body:", req.body);
+  console.log("Incoming files:", req.files);
+
+  let title = "";
   if (req.body.data) {
     const parsedData = JSON.parse(req.body.data);
     title = parsedData.title;
@@ -161,28 +160,78 @@ const updateSettings = catchAsync(async (req: Request, res: Response) => {
     title = req.body.title;
   }
 
-  // Ensure TypeScript understands req.files is an object
-  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  // Fetch existing settings from DB to get old image keys
+  const existingSettingsArray = await SettingsService.getSettingsFromDB();
 
-  const favicon = files?.['favicon']?.[0]?.path;
-  const logo = files?.['logo']?.[0]?.path;
+  // Ensure we are working with a single settings object
+  const existingSettings = existingSettingsArray?.[0];
 
-  // Prepare update data
-  const updatedSettingsData: any = { title };
-  if (favicon) updatedSettingsData.favicon = favicon;
-  if (logo) updatedSettingsData.logo = logo;
-  console.log(updatedSettingsData);
+  // Default values if settings don't exist
+  let logo = existingSettings?.logo || "";
+  let logo_key = existingSettings?.logo_key || "";
+  let favicon = existingSettings?.favicon || "";
+  let favicon_key = existingSettings?.favicon_key || "";
+  try {
+    if (req.files && "logo" in req.files) {
+      const logoImage = req.files["logo"][0];
 
-  // Update settings in the database
-  const result = await SettingsService.updateSettingsIntoDB(updatedSettingsData);
+      // Delete old logo from Spaces if it exists
+      if (logo_key) {
+        console.log("Deleting old logo from DigitalOcean Spaces...");
+        await FileUploadHelper.deleteFromSpaces(logo_key);
+      }
 
-  sendResponse(res, {
-    statusCode: StatusCodes.OK,
-    success: true,
-    message: 'Settings updated successfully',
-    data: result,
-  });
+      // Upload new logo
+      console.log("Uploading new logo...");
+      const logoUpload = await FileUploadHelper.uploadToSpaces(logoImage);
+      if (logoUpload) {
+        logo = logoUpload?.Location;
+        logo_key = logoUpload?.Key;
+      }
+    }
+
+    if (req.files && "favicon" in req.files) {
+      const faviconImage = req.files["favicon"][0];
+
+      // Delete old favicon from Spaces if it exists
+      if (favicon_key) {
+        console.log("Deleting old favicon from DigitalOcean Spaces...");
+        await FileUploadHelper.deleteFromSpaces(favicon_key);
+      }
+
+      // Upload new favicon
+      console.log("Uploading new favicon...");
+      const faviconUpload = await FileUploadHelper.uploadToSpaces(faviconImage);
+      if (faviconUpload) {
+        favicon = faviconUpload.Location;
+        favicon_key = faviconUpload.Key;
+      }
+    }
+
+    // Prepare updated data
+    const updatedSettingsData = {
+      title,
+      logo,
+      logo_key,
+      favicon,
+      favicon_key,
+    };
+
+    console.log("Updating settings in database:", updatedSettingsData);
+    const result = await SettingsService.updateSettingsIntoDB(updatedSettingsData);
+
+    sendResponse(res, {
+      statusCode: StatusCodes.OK,
+      success: true,
+      message: "Settings updated successfully",
+      data: result,
+    });
+  } catch (error) {
+    console.error("Error updating settings:", error);
+    return res.status(500).json({ message: "Internal server error", error });
+  }
 });
+
 
 
 

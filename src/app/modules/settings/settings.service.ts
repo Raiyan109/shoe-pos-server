@@ -3,8 +3,7 @@ import ApiError from '../../../errors/ApiError';
 import { ISettings } from './settings.interface';
 import { SettingsModel } from './settings.model';
 
-
-
+// Create Settings
 const createSettingsIntoDB = async (settings: ISettings) => {
   const isSettingsExists = await SettingsModel.findOne({ name: settings.title })
   if (isSettingsExists) {
@@ -14,15 +13,14 @@ const createSettingsIntoDB = async (settings: ISettings) => {
   return result
 };
 
-
+// Find Settings
 const getSettingsFromDB = async () => {
   const result = await SettingsModel.find();
   return result;
 };
 
+// Update Settings
 const updateSettingsIntoDB = async (payload: Partial<ISettings>) => {
-  console.log(payload, 'payload from updatesettings service');
-
   const updatedSettings = await SettingsModel.findOneAndUpdate({}, payload, {
     new: true,
     runValidators: true,

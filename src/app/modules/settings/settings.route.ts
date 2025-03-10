@@ -9,7 +9,10 @@ const router = express.Router();
 router.route("/").get(SettingsController.getSettings).post(FileUploadHelper.ImageUpload.fields([
     { name: "logo", maxCount: 1 },
     { name: "favicon", maxCount: 1 },
-]), SettingsController.createSettings).patch(
+]), SettingsController.createSettings).patch(FileUploadHelper.ImageUpload.fields([
+    { name: "logo", maxCount: 1 },
+    { name: "favicon", maxCount: 1 },
+]),
     SettingsController.updateSettings)
 // .delete(CategoryController.deleteCategory)
 

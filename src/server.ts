@@ -4,7 +4,6 @@ import { Server } from 'socket.io';
 import app from './app';
 import config from './config';
 import seedAdmin from './DB';
-import { socketHelper } from './helpers/socketHelper';
 import { errorLogger, logger } from './shared/logger';
 
 //uncaught exception
@@ -39,11 +38,6 @@ async function main() {
     });
     //@ts-ignore
     global.io = io;
-    socketHelper.socket(io);
-
-    // (global as any).io = io;
-    // globalThis.io = io;
-
   } catch (error) {
     errorLogger.error(colors.red('🤢 Failed to connect Database'));
   }

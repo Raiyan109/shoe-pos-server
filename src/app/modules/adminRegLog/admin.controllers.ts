@@ -1,3 +1,4 @@
+import { promisify } from "util";
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { adminSearchableField, IAdminInterface } from "./admin.interface";
 import AdminModel from "./admin.model";
@@ -5,10 +6,11 @@ import { deleteAdminServices, findAdminInfoServices, findAllDashboardAdminRoleAd
 import { StatusCodes } from "http-status-codes";
 import ApiError from "../../../errors/ApiError";
 import sendResponse from "../../../shared/sendResponse";
-const bcrypt = require("bcryptjs");
+import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 const saltRounds = 10;
-const jwt = require("jsonwebtoken");
-const { promisify } = require("util");
+
+// const { promisify } = require("util");
 
 // get a Admin
 export const getMeAdmin: RequestHandler = async (
@@ -201,19 +203,19 @@ export const updateAdmin: RequestHandler = async (
     if (!requestData?.admin_phone) {
       throw new ApiError(400, "Phone Number Required !");
     }
-   
-      const findAdminWithEmailOrPhoneExist: boolean | null | undefined | any =
-        await AdminModel.exists({
-          admin_phone: requestData?.admin_phone,
-        });
 
-      if (
-        findAdminWithEmailOrPhoneExist &&
-        requestData?._id !== findAdminWithEmailOrPhoneExist?._id.toString()
-      ) {
-        throw new ApiError(400, "Already Added This Phone !");
-      }
-    
+    const findAdminWithEmailOrPhoneExist: boolean | null | undefined | any =
+      await AdminModel.exists({
+        admin_phone: requestData?.admin_phone,
+      });
+
+    if (
+      findAdminWithEmailOrPhoneExist &&
+      requestData?._id !== findAdminWithEmailOrPhoneExist?._id.toString()
+    ) {
+      throw new ApiError(400, "Already Added This Phone !");
+    }
+
     if (requestData?.admin_password) {
       bcrypt.hash(
         requestData?.admin_password,
