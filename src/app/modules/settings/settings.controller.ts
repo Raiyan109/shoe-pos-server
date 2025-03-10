@@ -165,6 +165,7 @@ const updateSettings = catchAsync(async (req: Request, res: Response) => {
 
   // Ensure we are working with a single settings object
   const existingSettings = existingSettingsArray?.[0];
+  console.log(existingSettings, 'exisingsettings in settings controller');
 
   // Default values if settings don't exist
   let logo = existingSettings?.logo || "";

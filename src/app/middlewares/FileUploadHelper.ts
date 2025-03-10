@@ -129,6 +129,7 @@ const deleteFromSpaces = async (key: any) => {
     try {
         const data = await s3.send(new DeleteObjectCommand(deleteParams));
         const httpStatusCode = data?.$metadata?.httpStatusCode;
+        console.log("Delete response:", data);  // Log the full response for debugging
         if (httpStatusCode == 204) return true;
         else return null;
     } catch (error) {

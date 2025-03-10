@@ -1,53 +1,49 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import { IBrand } from './brand.interface';
 
 
 const BrandSchema = new mongoose.Schema<IBrand>(
   {
     brand_name: {
-      type: String,
-    },
-    created_by: {
-      type: String,
       required: true,
-    },
-    updated_by: {
       type: String,
-      required: true,
     },
-    sequence: {
-      type: Number,
-      default: 0
+    brand_slug: {
+      required: true,
+      type: String,
+      unique: true,
+    },
+    brand_logo: {
+      required: true,
+      type: String,
+    },
+    brand_logo_key: {
+      required: true,
+      type: String,
     },
     brand_status: {
-      type: String,
-      enum: ['Active', 'InActive'], // Explicitly defining enum values
-      default: 'Active', // Default should be a valid enum value
       required: true,
-
-    },
-    brand_image: {
       type: String,
-      // required: true,
+      enum: ["active", "in-active"],
+      default: "active",
     },
-    brand_image_key: {
-      type: String,
-      // required: true,
+    brand_serial: {
+      required: true,
+      type: Number,
     },
-    // created_by: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: 'User',
-    //   required: true,
-    // },
-    // updated_by: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   ref: 'User',
-    //   required: true,
-    // },
+    brand_publisher_id: {
+      type: Schema.Types.ObjectId,
+      ref: "admins",
+      required: true,
+    },
+    brand_updated_by: {
+      type: Schema.Types.ObjectId,
+      ref: "admins",
+    },
   },
   {
     timestamps: true,
   }
 );
 
-export const BrandModel = mongoose.model<IBrand>('Brand', BrandSchema);
+export const BrandModel = mongoose.model<IBrand>('brands', BrandSchema);
