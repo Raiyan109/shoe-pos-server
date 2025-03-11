@@ -3,10 +3,10 @@ import { StatusCodes } from 'http-status-codes';
 import { Secret } from 'jsonwebtoken';
 import config from '../../config';
 import ApiError from '../../errors/ApiError';
-import { jwtHelper } from '../../helpers/jwtHelper';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
 const auth =
-  (...roles: string[]) =>
+  (...status: string[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const tokenWithBearer = req.headers.authorization;
@@ -18,18 +18,18 @@ const auth =
         const token = tokenWithBearer.split(' ')[1];
 
         //verify token
-        const verifyUser = jwtHelper.verifyToken(
+        const verifyAdmin = jwt.verify(
           token,
           config.jwt.jwt_secret as Secret
-        );
+        ) as JwtPayload;
         //set user to header
-        req.user = verifyUser;
+        req.user = verifyAdmin;
 
         //guard user
-        if (roles.length && !roles.includes(verifyUser.role)) {
+        if (status.length && !status.includes(verifyAdmin.admin_status)) {
           throw new ApiError(
-            StatusCodes.FORBIDDEN,
-            "You don't have permission to access this api"
+            StatusCodes.NOT_FOUND,
+            "Error faced while retrieving status!"
           );
         }
 
