@@ -8,7 +8,7 @@ const router = express.Router();
 // Create, Get category
 router
     .route("/")
-    //   .get(findAllCategory)
+    .get(BrandController.findAllBrand)
     .post(
         FileUploadHelper.ImageUpload.fields([
             { name: "brand_logo", maxCount: 1 },

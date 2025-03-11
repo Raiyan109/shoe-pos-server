@@ -7,8 +7,8 @@ import {
 import multer from "multer";
 import * as fs from "fs";
 import ApiError from "../../errors/ApiError";
-const path = require("path");
-const uuid = require("uuid");
+import path from "path";
+import { v4 as uuidv4 } from 'uuid';
 
 // Set up AWS configuration
 const region = "ap-south-1";
@@ -27,7 +27,7 @@ const SpaceName = "cit-node";
 const storage = multer.diskStorage({
   destination: "uploads/",
   filename: function (req, file, cb) {
-    const uniqueSuffix = uuid.v4();
+    const uniqueSuffix = uuidv4();
     cb(null, uniqueSuffix + "-" + file.originalname);
   },
 });

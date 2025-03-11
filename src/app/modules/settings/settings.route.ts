@@ -2,7 +2,8 @@ import express from 'express';
 import { SettingsController } from './settings.controller';
 import validateRequest from '../../middlewares/validateRequest';
 import { createSettingsSchema, updateSettingsSchema } from './settings.validation';
-import { FileUploadHelper } from '../../middlewares/FileUploadHelper';
+import { FileUploadHelper } from '../../../helpers/helpers/image.upload';
+
 const router = express.Router();
 
 // get user active category and post update delete category

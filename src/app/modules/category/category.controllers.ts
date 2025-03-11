@@ -35,18 +35,14 @@ export const postCategory: RequestHandler = async (
         });
       if (findCategoryNameExit) {
         fs.unlinkSync(req.files.category_logo[0].path);
-        throw new ApiError(400, "Already Added !");
+        throw new ApiError(400, "This category is already exists!");
       }
 
-      const findCategorySerialExit: boolean | null | undefined | any =
-        await CategoryModel.exists({
-          category_serial: requestData?.category_serial,
-        });
+      // Get the highest category_serial
+      const lastCategory = await CategoryModel.findOne().sort({ category_serial: -1 });
 
-      if (findCategorySerialExit) {
-        fs.unlinkSync(req.files.category_logo[0].path);
-        throw new ApiError(400, "Serial Number Previously Added !");
-      }
+      // Determine the new category_serial
+      const newCategorySerial = lastCategory ? lastCategory.category_serial + 1 : 1;
 
       // get the category image and upload
       let category_logo;
@@ -59,7 +55,7 @@ export const postCategory: RequestHandler = async (
         category_logo = category_logo_upload?.Location;
         category_logo_key = category_logo_upload?.Key;
       }
-      const data = { ...requestData, category_logo, category_logo_key, category_slug };
+      const data = { ...requestData, category_logo, category_logo_key, category_slug, category_serial: newCategorySerial };
       const result: ICategoryInterface | {} = await postCategoryServices(data);
 
       if (result) {
@@ -156,19 +152,44 @@ export const updateCategory: RequestHandler = async (
         requestData?._id !== findCategoryNameExit?._id.toString()
       ) {
         fs.unlinkSync(req.files.category_logo[0].path);
-        throw new ApiError(400, "Already Added !");
+        throw new ApiError(400, "This category is already exists!");
       }
-      const findCategorySerialExit: boolean | null | undefined | any =
-        await CategoryModel.exists({
-          category_serial: requestData?.category_serial,
-        });
-      if (
-        findCategorySerialExit &&
-        requestData?._id !== findCategorySerialExit?._id.toString()
-      ) {
-        fs.unlinkSync(req.files.category_logo[0].path);
-        throw new ApiError(400, "Serial Number Previously Added !");
+      // const findCategorySerialExit: boolean | null | undefined | any =
+      //   await CategoryModel.exists({
+      //     category_serial: requestData?.category_serial,
+      //   });
+      // if (
+      //   findCategorySerialExit &&
+      //   requestData?._id !== findCategorySerialExit?._id.toString()
+      // ) {
+      //   fs.unlinkSync(req.files.category_logo[0].path);
+      //   throw new ApiError(400, "Serial Number Previously Added !");
+      // }
+
+
+      // Find the category that currently has the given newSerial
+      const existingCategory = await CategoryModel.findOne({ category_serial: requestData?.category_serial });
+
+      //console.log("hello",existingCategory);
+
+
+      // Find the category that is being updated
+      const categoryToUpdate = await CategoryModel.findById(requestData?._id);
+
+      //console.log(categoryToUpdate);
+
+
+      if (!categoryToUpdate) {
+        throw new Error("Category to update not found.");
       }
+
+      if (existingCategory) {
+        // Swap serials if another category already has the newSerial
+        await CategoryModel.findByIdAndUpdate(existingCategory._id, { category_serial: categoryToUpdate.category_serial });
+      }
+
+      // Update the requested category with the new serial
+      await CategoryModel.findByIdAndUpdate(requestData?._id, { category_serial: requestData?.category_serial });
 
       // get the category image and upload
       let category_logo;
@@ -211,20 +232,42 @@ export const updateCategory: RequestHandler = async (
         findCategoryNameExit &&
         requestData?._id !== findCategoryNameExit?._id.toString()
       ) {
-        throw new ApiError(400, "Already Added !");
+        throw new ApiError(400, "This category is already exists!");
       }
-      const findCategorySerialExit: boolean | null | undefined | any =
-        await CategoryModel.exists({
-          category_serial: requestData?.category_serial,
-        });
-      if (
-        findCategorySerialExit &&
-        requestData?._id !== findCategorySerialExit?._id.toString()
-      ) {
-        throw new ApiError(400, "Serial Number Previously Added !");
+      // const findCategorySerialExit: boolean | null | undefined | any =
+      //   await CategoryModel.exists({
+      //     category_serial: requestData?.category_serial,
+      //   });
+      // if (
+      //   findCategorySerialExit &&
+      //   requestData?._id !== findCategorySerialExit?._id.toString()
+      // ) {
+      //   throw new ApiError(400, "Serial Number Previously Added !");
+      // }
+
+      // Find the category that currently has the given newSerial
+      const existingCategory = await CategoryModel.findOne({ category_serial: requestData?.category_serial });
+
+
+      // Find the category that is being updated
+      const categoryToUpdate = await CategoryModel.findById(requestData?._id);
+
+
+      if (!categoryToUpdate) {
+        throw new Error("Category to update not found.");
       }
+
+      if (existingCategory) {
+        // Swap serials if another category already has the newSerial
+        await CategoryModel.findByIdAndUpdate(existingCategory._id, { category_serial: categoryToUpdate.category_serial });
+      }
+
+      // Update the requested category with the new serial
+      await CategoryModel.findByIdAndUpdate(requestData?._id, { category_serial: requestData?.category_serial });
+
+      const data = { ...requestData, category_slug };
       const result: ICategoryInterface | any = await updateCategoryServices(
-        requestData,
+        data,
         requestData?._id
       );
       if (result?.modifiedCount > 0) {

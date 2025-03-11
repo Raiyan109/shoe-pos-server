@@ -90,7 +90,7 @@ const postBrand = catchAsync(async (req: Request, res: Response, next: NextFunct
 });
 
 
-const getAllBrands = catchAsync(async (req, res) => {
+const findAllBrand = catchAsync(async (req, res) => {
   const query = req.query
   const result = await BrandServices.getAllBrandsFromDB(query);
 
@@ -137,6 +137,6 @@ const updateBrandSequence = catchAsync(async (req, res) => {
 
 export const BrandController = {
   postBrand,
-  getAllBrands,
+  findAllBrand,
   updateBrandSequence
 };
