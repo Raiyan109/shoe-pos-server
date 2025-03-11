@@ -8,6 +8,8 @@ import { IBrand } from './brand.interface';
 import { FileUploadHelper } from '../../../helpers/helpers/image.upload';
 import ApiError from '../../../errors/ApiError';
 import slugify from "slugify";
+import { BrandModel } from './brand.model';
+import * as fs from "fs";
 
 
 const postBrand = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -55,6 +57,35 @@ const postBrand = catchAsync(async (req: Request, res: Response, next: NextFunct
     if (req.files && "brand_logo" in req.files && req.body) {
       const requestData = req.body;
       let brand_slug = slugify(requestData?.brand_name);
+
+      const findBrandNameExist = await BrandModel.exists({ brand_slug });
+
+      if (findBrandNameExist) {
+        if (req.files?.category_logo?.[0]?.path) {
+          try {
+            fs.unlinkSync(req.files.category_logo[0].path);
+          } catch (error) {
+            console.error("Error deleting file:", error);
+          }
+        }
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'This category already exists!');
+      }
+
+      const findBrandSerialExist = await BrandModel.exists({
+        brand_serial: requestData?.brand_serial,
+      });
+
+      if (findBrandSerialExist) {
+        if (req.files?.category_logo?.[0]?.path) {
+          try {
+            fs.unlinkSync(req.files.category_logo[0].path);
+          } catch (error) {
+            console.error("Error deleting file:", error);
+          }
+        }
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Serial Number Previously Added!');
+      }
+
 
       // get the category image and upload
       let brand_logo;
