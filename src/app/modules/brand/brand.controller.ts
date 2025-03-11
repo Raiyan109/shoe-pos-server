@@ -92,7 +92,7 @@ const postBrand = catchAsync(async (req: Request, res: Response, next: NextFunct
 
 const findAllBrand = catchAsync(async (req, res) => {
   const query = req.query
-  const result = await BrandServices.getAllBrandsFromDB(query);
+  const result = await BrandServices.findAllBrandsServices(query);
 
   // Check if the database collection is empty or no matching data is found
   if (!result || result.length === 0) {

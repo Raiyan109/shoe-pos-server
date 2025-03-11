@@ -15,9 +15,9 @@ class QueryBuilder<T> {
       this.modelQuery = this.modelQuery.find({
         $or: searchableFields.map(
           field =>
-            ({
-              [field]: { $regex: searchTerm, $options: 'i' },
-            } as FilterQuery<T>)
+          ({
+            [field]: { $regex: searchTerm, $options: 'i' },
+          } as FilterQuery<T>)
         ),
       });
     }
@@ -38,13 +38,23 @@ class QueryBuilder<T> {
     return this;
   }
 
+  // sort() {
+  //   const sort =
+  //     (this?.query?.sort as string)?.split(',')?.join(' ') || '-createdAt';
+  //   this.modelQuery = this.modelQuery.sort(sort as string);
+
+  //   return this;
+  // }
+
   sort() {
-    const sort =
-      (this?.query?.sort as string)?.split(',')?.join(' ') || '-createdAt';
-    this.modelQuery = this.modelQuery.sort(sort as string);
+    const sortFields = (this?.query?.sort as string)?.split(',')?.join(' ') || '-createdAt';
+
+    // Apply both dynamic sorting and static sorting
+    this.modelQuery = this.modelQuery.sort({ brand_serial: 1, ...(sortFields ? { [sortFields]: 1 } : {}) });
 
     return this;
   }
+
 
   paginate() {
     const page = Number(this?.query?.page) || 1;

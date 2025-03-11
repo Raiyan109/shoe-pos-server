@@ -39,20 +39,51 @@ const postBrandServices = async (brand: IBrand) => {
   return result;
 };
 
-// Get all brands
-const getAllBrandsFromDB = async (queryParams: Record<string, unknown>) => {
-  const modelQuery = BrandModel.find(); // Initial Mongoose query
+// Find brand
+const findAllBrandsServices = async (queryParams: Record<string, unknown>) => {
+  const modelQuery = BrandModel.find({ brand_status: "active" }); // Initial Mongoose query
 
   const query = new QueryBuilder(modelQuery, queryParams)
     .search(['brand_name']) // Provide searchable fields
     // .filter()
-    // .sort()
+    .sort()
     .paginate()
   // .fields();
 
   const result = await query.modelQuery.sort({ sequence: 1 }); // Execute the query
   return result;
 };
+
+
+// Find all dashboard Brand
+export const findAllDashboardCategoryServices = async (
+  limit: number,
+  skip: number,
+  searchTerm: any
+): Promise<IBrand[] | []> => {
+  const andCondition = [];
+  if (searchTerm) {
+    andCondition.push({
+      $or: categorySearchableField.map((field) => ({
+        [field]: {
+          $regex: searchTerm,
+          $options: "i",
+        },
+      })),
+    });
+  }
+  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
+  const findCategory: ICategoryInterface[] | [] = await CategoryModel.find(
+    whereCondition
+  )
+    .sort({ category_serial: 1 })
+    .skip(skip)
+    .limit(limit)
+    .select("-__v");
+  return findCategory;
+};
+
+
 
 
 const updateBrandSequenceInDB = async (brandId: string, newSequence: number) => {
@@ -82,6 +113,6 @@ const updateBrandSequenceInDB = async (brandId: string, newSequence: number) => 
 
 export const BrandServices = {
   postBrandServices,
-  getAllBrandsFromDB,
+  findAllBrandsServices,
   updateBrandSequenceInDB
 };
