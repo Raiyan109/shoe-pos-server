@@ -1,282 +1,62 @@
-import { NextFunction, Request, RequestHandler, Response } from "express";
-import { adminSearchableField, IAdminInterface } from "./admin.interface";
-import AdminModel from "./admin.model";
-import { deleteAdminServices, findAdminInfoServices, findAllDashboardAdminRoleAdminServices, postAdminServices, updateAdminServices } from "./admin.services";
 import { StatusCodes } from "http-status-codes";
-import ApiError from "../../../errors/ApiError";
-import sendResponse from "../../../shared/sendResponse";
-import bcryptjs from "bcryptjs";
-const saltRounds = 10;
-const jwt = require("jsonwebtoken");
-const { promisify } = require("util");
+import catchAsync from "../../../shared/catchAsync";
+import AdminModel from "./admin.model";
+import { AdminServices } from "./admin.services";
 
-// get a Admin
-export const getMeAdmin: RequestHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const token = await req.cookies?.shoe_pos_website_token;
 
-    if (!token) {
-      throw new ApiError(400, "Admin get failed !");
-    }
-    const decode = await promisify(jwt.verify)(
-      token,
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5hem11bEBnbWFpbC5jb20iLCJpYXQiOjE2OTQ0MzExOTF9.xtLPsJrvJ0Gtr4rsnHh1kok51_pU10_hYLilZyBiRAM"
-    );
-    // const decode = await promisify(jwt.verify)(token, process.env.ACCESS_TOKEN);
+// login an admin
+const loginAdmin = catchAsync(async (req, res) => {
+  const resultController = await AdminServices.loginAdminServices(req.body);
+  const { accessToken } = resultController;
 
-    const Admin = await findAdminInfoServices(decode.admin_phone);
+  const adminLoginInfo = await AdminModel.find({ admin_phone: req.body.admin_phone })
 
-    if (Admin) {
-      return sendResponse(res, {
-        statusCode: StatusCodes.OK,
-        success: true,
-        message: "Admin get successfully !",
-        data: Admin,
-      });
-    }
-    throw new ApiError(400, "Admin get failed !");
-  } catch (error) {
-    next(error);
-  }
-};
 
-// Add A Admin
-export const postAdmin: RequestHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<IAdminInterface | any> => {
-  try {
-    const requestData = req.body;
-    if (!requestData?.admin_phone) {
-      throw new ApiError(400, "Phone Number Required !");
-    }
-    if (!requestData?.admin_name) {
-      throw new ApiError(400, "Admin Name Required !");
-    }
-    if (!requestData?.admin_password) {
-      throw new ApiError(400, "Password Required !");
-    }
-    if (!requestData?.admin_status) {
-      throw new ApiError(400, "Admin Status Required !");
-    }
+  //console.log(adminLoginInfo);
 
-    const findAdminWithEmailOrPhoneExist: boolean | null | undefined | any =
-      await AdminModel.exists({
-        admin_phone: requestData?.admin_phone,
-      });
+  // Set token in HTTP-only cookie
+  res.cookie('admin_token', `Bearer ${accessToken}`, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'development',
+    sameSite: 'strict',
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+  });
 
-    if (findAdminWithEmailOrPhoneExist) {
-      throw new ApiError(400, "Already Added This Phone !");
-    }
-    bcrypt.hash(
-      requestData?.admin_password,
-      saltRounds,
-      async function (err: Error, hash: string) {
-        delete requestData?.admin_password;
-        const data = {
-          ...requestData,
-          admin_password: hash,
-        };
-        try {
-          const result: IAdminInterface | {} = await postAdminServices(data);
-          if (result) {
-            return sendResponse<IAdminInterface>(res, {
-              statusCode: StatusCodes.OK,
-              success: true,
-              message: "Admin Added Successfully !",
-            });
-          } else {
-            throw new ApiError(400, "Admin Added Failed !");
-          }
-        } catch (error) {
-          next(error);
-        }
-      }
-    );
-  } catch (error: any) {
-    next(error);
-  }
-};
 
-// login a Admin 
-export const postLogAdmin: RequestHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { admin_password, admin_phone } = req.body;
+  res.status(StatusCodes.OK).json({
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: 'Admin logged in successfully',
+    token: accessToken,
+    data: adminLoginInfo,
+  });
+});
 
-    const findAdmin: IAdminInterface | null = await AdminModel.findOne({
-      admin_phone: admin_phone,
-    });
-    if (!findAdmin) {
-      throw new ApiError(400, "Admin Not Found !");
-    }
-    if (findAdmin?.admin_status == "in-active") {
-      throw new ApiError(400, "Inactive Admin !");
-    }
 
-    const isPasswordValid = await bcrypt.compare(
-      admin_password,
-      findAdmin?.admin_password
-    );
-    if (isPasswordValid) {
-      const admin_phone = findAdmin?.admin_phone;
-      const token = jwt.sign(
-        { admin_phone },
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im5hem11bEBnbWFpbC5jb20iLCJpYXQiOjE2OTQ0MzExOTF9.xtLPsJrvJ0Gtr4rsnHh1kok51_pU10_hYLilZyBiRAM",
-        { expiresIn: "365d" }
-      );
-      res.cookie("shoe_pos_website_token", token);
-      return sendResponse(res, {
-        statusCode: StatusCodes.OK,
-        success: true,
-        message: "Admin log in successfully !",
-      });
-    } else {
-      throw new ApiError(400, "Password not match !");
-    }
-  } catch (error) {
-    next(error);
-  }
-};
+// create an admin
+const registerAdmin = catchAsync(async (req, res) => {
+  const result = await AdminServices.registerAdminServices(req.body);
+  const token = result.accessToken
 
-// Find All dashboard Admi Role Admin
-export const findAllDashboardAdminRoleAdmin: RequestHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<IAdminInterface | any> => {
-  try {
-    const { page, limit, searchTerm } = req.query;
-    const pageNumber = Number(page);
-    const limitNumber = Number(limit);
-    const skip = (pageNumber - 1) * limitNumber;
-    const result: IAdminInterface[] | any =
-      await findAllDashboardAdminRoleAdminServices(
-        limitNumber,
-        skip,
-        searchTerm
-      );
-    const andCondition = [];
-    if (searchTerm) {
-      andCondition.push({
-        $or: adminSearchableField.map((field) => ({
-          [field]: {
-            $regex: searchTerm,
-            $options: "i",
-          },
-        })),
-      });
-    }
-    const whereCondition =
-      andCondition.length > 0 ? { $and: andCondition } : {};
-    const total = await AdminModel.countDocuments(whereCondition);
-    return sendResponse<IAdminInterface>(res, {
-      statusCode: StatusCodes.OK,
-      success: true,
-      message: "Admin Found Successfully !",
-      data: result,
-      totalData: total,
-    });
-  } catch (error: any) {
-    next(error);
-  }
-};
+  // Set token in HTTP-only cookie
+  res.cookie('admin_token', `Bearer ${token}`, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'development',
+    sameSite: 'strict',
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+  });
 
-// Update A Admin
-export const updateAdmin: RequestHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<IAdminInterface | any> => {
-  try {
-    const requestData = req.body;
-    if (!requestData?.admin_phone) {
-      throw new ApiError(400, "Phone Number Required !");
-    }
-   
-      const findAdminWithEmailOrPhoneExist: boolean | null | undefined | any =
-        await AdminModel.exists({
-          admin_phone: requestData?.admin_phone,
-        });
+  res.status(StatusCodes.OK).json({
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: 'Admin registered successfully',
+    data: result.result,
+    token: token
+  });
+});
 
-      if (
-        findAdminWithEmailOrPhoneExist &&
-        requestData?._id !== findAdminWithEmailOrPhoneExist?._id.toString()
-      ) {
-        throw new ApiError(400, "Already Added This Phone !");
-      }
-    
-    if (requestData?.admin_password) {
-      bcrypt.hash(
-        requestData?.admin_password,
-        saltRounds,
-        async function (err: Error, hash: string) {
-          delete requestData?.admin_password;
-          const data = { ...requestData, admin_password: hash };
-          const result: IAdminInterface | any = await updateAdminServices(
-            data,
-            requestData?._id
-          );
-          if (result?.modifiedCount > 0) {
-            return sendResponse<IAdminInterface>(res, {
-              statusCode: StatusCodes.OK,
-              success: true,
-              message: "Admin Update Successfully !",
-            });
-          } else {
-            throw new ApiError(400, "Admin Update Failed !");
-          }
-        }
-      );
-    } else {
-      const result: IAdminInterface | any = await updateAdminServices(
-        requestData,
-        requestData?._id
-      );
-      if (result?.modifiedCount > 0) {
-        return sendResponse<IAdminInterface>(res, {
-          statusCode: StatusCodes.OK,
-          success: true,
-          message: "Admin Update Successfully !",
-        });
-      } else {
-        throw new ApiError(400, "Admin Update Failed !");
-      }
-    }
-  } catch (error: any) {
-    next(error);
-  }
-};
 
-// Delete a Admin
-export const deleteAAdmin: RequestHandler = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<IAdminInterface | any> => {
-  try {
-    const data = req.body;
-    const _id = data?._id;
-    const result: IAdminInterface[] | any = await deleteAdminServices(_id);
-
-    if (result?.deletedCount > 0) {
-      return sendResponse<IAdminInterface>(res, {
-        statusCode: StatusCodes.OK,
-        success: true,
-        message: "Admin Delete Successfully !",
-      });
-    } else {
-      throw new ApiError(400, "Admin Delete Failed !");
-    }
-  } catch (error: any) {
-    next(error);
-  }
+export const AdminControllers = {
+  loginAdmin,
+  registerAdmin
 };
