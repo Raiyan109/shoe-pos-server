@@ -1,8 +1,10 @@
 import { Schema, model } from "mongoose";
-import { IAdminInterface } from "./admin.interface";
+import { IAdminInterface, IExtendedAdminInterface } from "./admin.interface";
+import bcrypt from "bcrypt";
+import config from "../../../config";
 
 // admin Schema
-const adminSchema = new Schema<IAdminInterface>(
+const adminSchema = new Schema<IAdminInterface, IExtendedAdminInterface>(
   {
     admin_password: {
       type: String,
@@ -35,6 +37,35 @@ const adminSchema = new Schema<IAdminInterface>(
   }
 );
 
-const AdminModel = model<IAdminInterface>("admins", adminSchema);
+
+adminSchema.pre('save', async function (next) {
+  // eslint-disable-next-line @typescript-eslint/no-this-alias
+  const admin = this; // doc
+  // hashing password and save into DB
+  admin.admin_password = await bcrypt.hash(
+    admin.admin_password,
+    Number(config.bcrypt_salt_rounds),
+  );
+  next();
+});
+
+// set '' after saving password
+adminSchema.post('save', function (doc, next) {
+  doc.admin_password = '';
+  next();
+});
+
+adminSchema.statics.isAdminExistsByPhone = async function (admin_phone: string) {
+  return await AdminModel.findOne({ admin_phone, isDeleted: { $ne: true } });
+};
+
+adminSchema.statics.isPasswordMatched = async function (
+  plainTextPassword,
+  hashedPassword,
+) {
+  return await bcrypt.compare(plainTextPassword, hashedPassword);
+};
+
+const AdminModel = model<IAdminInterface, IExtendedAdminInterface>("admins", adminSchema);
 
 export default AdminModel;

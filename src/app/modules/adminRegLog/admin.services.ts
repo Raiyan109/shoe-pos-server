@@ -1,100 +1,82 @@
-import { adminSearchableField, IAdminInterface } from "./admin.interface";
-import AdminModel from "./admin.model";
+import { IAdminInterface, IAdminLoginInterface } from './admin.interface';
+import AdminModel from './admin.model';
+import ApiError from '../../../errors/ApiError';
+import { StatusCodes } from 'http-status-codes';
+import config from '../../../config';
+import { createToken } from '../../../util/createToken';
 
-// Check a Admin is exists?
-export const findAdminInfoServices = async (
-  admin_phone: string
-): Promise<IAdminInterface | null> => {
-  const Admin = await AdminModel.findOne({ admin_phone: admin_phone })
-    .select("-admin_password -admin_otp");
-  if (Admin) {
-    return Admin;
-  } else {
-    return null;
+
+// login as admin
+const loginAdminServices = async (payload: IAdminLoginInterface) => {
+  // checking if the admin is exist
+  const admin = await AdminModel?.isAdminExistsByPhone(payload.admin_phone);
+
+
+  if (!admin) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'admin is not found');
   }
-};
 
-// Find a IAdminInterface for verify token
-export const checkAdminExitsForVerify = async (
-  admin_phone: any
-): Promise<IAdminInterface | any> => {
-  const findIAdminInterface: IAdminInterface | any = await AdminModel.findOne({
-    admin_phone: admin_phone,
-  })
-    .select("-__v");
-  return findIAdminInterface;
-};
+  //checking if the password is correct
 
-// Create A Admin
-export const postAdminServices = async (
-  data: IAdminInterface
-): Promise<IAdminInterface | {}> => {
-  const createAdmin: IAdminInterface | {} = await AdminModel.create(data);
-  return createAdmin;
-};
+  if (!(await AdminModel?.isPasswordMatched(payload?.admin_password, admin?.admin_password)))
+    throw new ApiError(StatusCodes.FORBIDDEN, 'Password do not matched');
 
-// Find all dashboard Admin Role Admin
-export const findAllDashboardAdminRoleAdminServices = async (
-  limit: number,
-  skip: number,
-  searchTerm: any
-): Promise<IAdminInterface[] | []> => {
-  const andCondition = [];
-  if (searchTerm) {
-    andCondition.push({
-      $or: adminSearchableField.map((field) => ({
-        [field]: {
-          $regex: searchTerm,
-          $options: "i",
-        },
-      })),
-    });
-  }
-  const whereCondition = andCondition.length > 0 ? { $and: andCondition } : {};
-  const findAdmin: IAdminInterface[] | [] = await AdminModel.find(
-    whereCondition
-  )
-    .populate(["admin_publisher_id", "admin_updated_by"])
-    .sort({ _id: 1 })
-    .skip(skip)
-    .limit(limit)
-    .select("-__v");
-  return findAdmin;
-};
+  //create token and sent to the  client
 
-// Update a Admin
-export const updateAdminServices = async (
-  data: IAdminInterface,
-  _id: string
-): Promise<IAdminInterface | any> => {
-  const updateAdminInfo: IAdminInterface | null = await AdminModel.findOne({
-    _id: _id,
-  });
-  if (!updateAdminInfo) {
-    throw new Error("Admin Not Found !");
-  }
-  const Admin = await AdminModel.updateOne({ _id: _id }, data, {
-    runValidators: true,
-  });
-  return Admin;
-};
+  const jwtPayload = {
+    admin_phone: admin.admin_phone,
+    admin_status: admin.admin_status,
+  };
 
-// delete a Admin start
-
-export const deleteAdminServices = async (
-  _id: string
-): Promise<IAdminInterface | any> => {
-  const deleteAdminInfo: IAdminInterface | null = await AdminModel.findOne({
-    _id: _id,
-  });
-  if (!deleteAdminInfo) {
-    throw new Error("Admin Not Found !");
-  }
-  const Admin = await AdminModel.deleteOne(
-    { _id: _id },
-    {
-      runValidators: true,
-    }
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt.jwt_secret as string,
+    config.jwt.jwt_expire_in as string,
   );
-  return Admin;
+
+  return {
+    accessToken,
+  };
+
+};
+
+
+
+// create an Admin
+const registerAdminServices = async (payload: IAdminInterface) => {
+
+  // checking if the admin is exist
+  const admin = await AdminModel?.isAdminExistsByPhone(payload.admin_phone);
+
+
+  if (admin) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Admin already exists!');
+  }
+
+  const result = await AdminModel.create(payload);
+
+  //create token and sent to the  client
+  const jwtPayload = {
+    admin_phone: result.admin_phone,
+    admin_status: result.admin_status,
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt.jwt_secret as string,
+    config.jwt.jwt_expire_in as string,
+  );
+
+  return {
+    result,
+    accessToken,
+  };
+
+  //return result;
+
+};
+
+export const AdminServices = {
+  loginAdminServices,
+  registerAdminServices
 };
