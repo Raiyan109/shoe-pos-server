@@ -2,6 +2,8 @@ import express from 'express';
 
 import { BrandController } from './brand.controller';
 import { FileUploadHelper } from '../../../helpers/helpers/image.upload';
+import { BrandValidation } from './brand.validation';
+import validateRequest from '../../middlewares/validateRequest';
 
 const router = express.Router();
 
@@ -15,12 +17,13 @@ router
         ]),
         BrandController.postBrand
     )
-//   .patch(
-//     FileUploadHelper.ImageUpload.fields([
-//       { name: "category_logo", maxCount: 1 },
-//     ]),
-//     updateCategory
-//   )
+    .patch(
+        FileUploadHelper.ImageUpload.fields([
+            { name: "brand_logo", maxCount: 1 },
+        ]),
+        validateRequest(BrandValidation.UpdateBrandSchema),
+        BrandController.updateBrand
+    )
 //   .delete(deleteACategoryInfo);
 
 // get all category in dashboard

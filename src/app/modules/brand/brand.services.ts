@@ -72,36 +72,49 @@ export const findAllDashboardCategoryServices = async (queryParams: Record<strin
 };
 
 
+// Update a Brand
+export const updateBrandServices = async (data: IBrand, _id: string): Promise<IBrand | any> => {
+  console.log(data, 'brand service');
 
-
-const updateBrandSequenceInDB = async (brandId: string, newSequence: number) => {
-  const targetBrand = await BrandModel.findById(brandId);
-  if (!targetBrand) {
-    throw new Error('Brand not found');
+  const updateBrandInfo = await BrandModel.findOne({ _id: _id });
+  if (!updateBrandInfo) {
+    return {};
   }
-
-  const oldSequence = targetBrand.sequence;
-
-  // Check if another brand already has the new sequence
-  const existingBrand = await BrandModel.findOne({ sequence: newSequence });
-
-  // If another brand has the same sequence, shift it
-  if (existingBrand) {
-    await BrandModel.findByIdAndUpdate(existingBrand._id, { sequence: oldSequence });
-  }
-
-  // Now update the target brand's sequence
-  targetBrand.sequence = newSequence;
-  await targetBrand.save();
-
-  return targetBrand;
+  const Brand = await BrandModel.findByIdAndUpdate({ _id: _id },
+    { $set: data }, // ✅ This ensures only provided fields are updated
+    { new: true, runValidators: true, context: "query" }
+  );
+  return Brand;
 };
+
+// const updateBrandSequenceInDB = async (brandId: string, newSequence: number) => {
+//   const targetBrand = await BrandModel.findById(brandId);
+//   if (!targetBrand) {
+//     throw new Error('Brand not found');
+//   }
+
+//   const oldSequence = targetBrand.sequence;
+
+//   // Check if another brand already has the new sequence
+//   const existingBrand = await BrandModel.findOne({ sequence: newSequence });
+
+//   // If another brand has the same sequence, shift it
+//   if (existingBrand) {
+//     await BrandModel.findByIdAndUpdate(existingBrand._id, { sequence: oldSequence });
+//   }
+
+//   // Now update the target brand's sequence
+//   targetBrand.sequence = newSequence;
+//   await targetBrand.save();
+
+//   return targetBrand;
+// };
 
 
 
 export const BrandServices = {
   postBrandServices,
   findAllBrandsServices,
-  updateBrandSequenceInDB,
-  findAllDashboardCategoryServices
+  findAllDashboardCategoryServices,
+  updateBrandServices
 };
