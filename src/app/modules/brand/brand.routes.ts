@@ -24,7 +24,7 @@ router
         validateRequest(BrandValidation.UpdateBrandSchema),
         BrandController.updateBrand
     )
-//   .delete(deleteACategoryInfo);
+    .delete(BrandController.deleteABrandInfo);
 
 // get all category in dashboard
 router.route("/dashboard").get(BrandController.findAllDashboardCategory);
