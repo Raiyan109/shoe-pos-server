@@ -259,6 +259,27 @@ const updateBrand = catchAsync(async (req, res, next) => {
 });
 
 
+const deleteABrandInfo = catchAsync(async (req, res, next) => {
+  try {
+    const brand_id = req.body._id
+    const result = await BrandServices.deleteBrandServices(brand_id);
+    if (result) {
+      if (req.body?.brand_logo_key) {
+        await FileUploadHelper.deleteFromSpaces(req.body?.brand_logo_key);
+      }
+      return sendResponse(res, {
+        statusCode: StatusCodes.OK,
+        success: true,
+        message: "Brand deleted successfully !",
+      });
+    } else {
+      throw new ApiError(400, "Brand delete failed !");
+    }
+  } catch (error: any) {
+    next(error);
+  }
+});
+
 // const updateBrandSequence = catchAsync(async (req, res) => {
 //   const { brandId } = req.params;
 //   const { sequence } = req.body;
@@ -286,5 +307,6 @@ export const BrandController = {
   postBrand,
   findAllBrand,
   findAllDashboardCategory,
-  updateBrand
+  updateBrand,
+  deleteABrandInfo
 };

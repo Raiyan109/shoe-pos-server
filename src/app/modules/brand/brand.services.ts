@@ -74,8 +74,6 @@ export const findAllDashboardCategoryServices = async (queryParams: Record<strin
 
 // Update a Brand
 export const updateBrandServices = async (data: IBrand, _id: string): Promise<IBrand | any> => {
-  console.log(data, 'brand service');
-
   const updateBrandInfo = await BrandModel.findOne({ _id: _id });
   if (!updateBrandInfo) {
     return {};
@@ -83,6 +81,17 @@ export const updateBrandServices = async (data: IBrand, _id: string): Promise<IB
   const Brand = await BrandModel.findByIdAndUpdate({ _id: _id },
     { $set: data }, // ✅ This ensures only provided fields are updated
     { new: true, runValidators: true, context: "query" }
+  );
+  return Brand;
+};
+
+// Delete a Brand
+export const deleteBrandServices = async (_id: string): Promise<IBrand | any> => {
+  const updateBrandInfo = await BrandModel.findOne({ _id: _id });
+  if (!updateBrandInfo) {
+    return {};
+  }
+  const Brand = await BrandModel.findByIdAndDelete({ _id: _id }
   );
   return Brand;
 };
@@ -116,5 +125,6 @@ export const BrandServices = {
   postBrandServices,
   findAllBrandsServices,
   findAllDashboardCategoryServices,
-  updateBrandServices
+  updateBrandServices,
+  deleteBrandServices
 };
