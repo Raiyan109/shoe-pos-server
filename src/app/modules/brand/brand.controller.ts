@@ -112,6 +112,28 @@ const findAllBrand = catchAsync(async (req, res) => {
   });
 });
 
+const findAllDashboardCategory = catchAsync(async (req, res) => {
+  const query = req.query
+  const result = await BrandServices.findAllDashboardCategoryServices(query);
+
+  // Check if the database collection is empty or no matching data is found
+  if (!result || result.length === 0) {
+    return sendResponse(res, {
+      success: false,
+      statusCode: StatusCodes.NOT_FOUND,
+      message: 'No data found.',
+      data: [],
+    });
+  }
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: 'Dashboard brands retrieved successfully',
+    data: result,
+  });
+});
+
 const updateBrandSequence = catchAsync(async (req, res) => {
   const { brandId } = req.params;
   const { sequence } = req.body;
@@ -138,5 +160,6 @@ const updateBrandSequence = catchAsync(async (req, res) => {
 export const BrandController = {
   postBrand,
   findAllBrand,
-  updateBrandSequence
+  updateBrandSequence,
+  findAllDashboardCategory
 };

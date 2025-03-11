@@ -24,6 +24,6 @@ router
 //   .delete(deleteACategoryInfo);
 
 // get all category in dashboard
-// router.route("/dashboard").get(findAllDashboardCategory);
+router.route("/dashboard").get(BrandController.findAllDashboardCategory);
 
 export const BrandRoutes = router;
